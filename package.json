@@ -4,6 +4,7 @@
   "description": "A URL shortener application that creates new links and allows each user to track and organize them via account registration for Lighthouse Labs Web Development Bootcamp",
   "main": "index.js",
   "scripts": {
+    "start": "./node_modules/.bin/nodemon -L express_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -11,7 +12,7 @@
     "url": "git+https://github.com/joshtantan/tinyapp.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Joshua Tan <joshtantan@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/joshtantan/tinyapp/issues"
