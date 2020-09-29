@@ -17,9 +17,9 @@ app.set('view engine', 'ejs');
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 
-// Homepage
+// Homepage (temp redirects to all URLs page)
 app.get('/', (req, res) => {
-  res.send('Hello!');
+  res.redirect('/urls');
 });
 
 // Redirect to long URL using short URL
@@ -47,7 +47,7 @@ app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
 
   if (!urlDatabase[shortURL]) {
-    res.status(404).send('cannot find cheese with that id');
+    res.status(404).send('Short URL not found');
     return;
   }
 
@@ -71,9 +71,9 @@ app.post('/urls', (req, res) => {
 
 // Catchall Case
 app.get('*', (req, res) => {
-  res.status(404).send('page not found');
+  res.status(404).send('Page not found');
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp Server listening on port ${PORT}`);
 });
