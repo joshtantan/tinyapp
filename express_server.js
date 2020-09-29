@@ -2,28 +2,28 @@ function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
 }
 
-const express = require("express");
+const express = require('express');
 const morgan = require('morgan');
 const app = express();
 const PORT = 8080; // default port 8080
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  'b2xVn2': 'http://www.lighthouselabs.ca',
+  '9sm5xK': 'http://www.google.com'
 };
 
-app.set("view engine", "ejs");
+app.set('view engine', 'ejs');
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 
 // Homepage
-app.get("/", (req, res) => {
-  res.send("Hello!");
+app.get('/', (req, res) => {
+  res.send('Hello!');
 });
 
 // Redirect to long URL using short URL
-app.get("/u/:shortURL", (req, res) => {
+app.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
 
@@ -31,19 +31,19 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 // All URLs Page
-app.get("/urls", (req, res) => {
+app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
 
-  res.render("urls_index", templateVars);
+  res.render('urls_index', templateVars);
 });
 
 // Create New URL Page
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+app.get('/urls/new', (req, res) => {
+  res.render('urls_new');
 });
 
 // Specific URL Entry Page
-app.get("/urls/:shortURL", (req, res) => {
+app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
 
   if (!urlDatabase[shortURL]) {
@@ -58,11 +58,11 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL
   };
 
-  res.render("urls_show", templateVars);
+  res.render('urls_show', templateVars);
 });
 
 // Submit new URL
-app.post("/urls", (req, res) => {
+app.post('/urls', (req, res) => {
   const newURL = generateRandomString();
   urlDatabase[newURL] = req.body.longURL;
 
