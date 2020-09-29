@@ -22,16 +22,6 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// (TEST) Displays HTML by brute force
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-// (TEST) Displays entire database
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
 // All URLs Page
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
@@ -45,9 +35,12 @@ app.get("/urls/new", (req, res) => {
 
 // Specific URL Entry Page
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { 
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL];
+
+  const templateVars = {
+    shortURL,
+    longURL
   };
 
   res.render("urls_show", templateVars);
@@ -55,10 +48,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Submit new URL
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-
   const newURL = generateRandomString();
-
   urlDatabase[newURL] = req.body.longURL;
 
   res.redirect(`/urls/${newURL}`);
