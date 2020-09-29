@@ -22,9 +22,18 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+// Redirect to long URL using short URL
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL];
+
+  res.redirect(longURL);
+});
+
 // All URLs Page
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
+
   res.render("urls_index", templateVars);
 });
 
@@ -36,6 +45,12 @@ app.get("/urls/new", (req, res) => {
 // Specific URL Entry Page
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
+
+  if (!urlDatabase[shortURL]) {
+    res.status(404).send('cannot find cheese with that id');
+    return;
+  }
+
   const longURL = urlDatabase[shortURL];
 
   const templateVars = {
