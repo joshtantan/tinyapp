@@ -8,6 +8,11 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>TinyApp</title>
 </head>
+
+<header>
+  <%- include('partials/_header') %>
+</header>
+
 <body>
   <main style="margin: 1em;">
     <h3>My URLs</h3>
@@ -23,12 +28,11 @@
           <tr>
             <td><%= url %></td>
             <td><%= urls[url] %></td>
-            <td>Create a new URL<a href="#"></td>
           </tr>
         <% } %>
       </tbody>
     </table>
-    <p></p>Shorten a new URL<a href="#"></a></p>
+    <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
