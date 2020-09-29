@@ -17,35 +17,56 @@ app.set("view engine", "ejs");
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 
+// Homepage
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+// (TEST) Displays HTML by brute force
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// (TEST) Displays entire database
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+// All URLs Page
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
+// Create New URL Page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+// Specific URL Entry Page
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { 
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL]
+  };
+
   res.render("urls_show", templateVars);
 });
 
+// Submit new URL
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+
+  const newURL = generateRandomString();
+
+  urlDatabase[newURL] = req.body.longURL;
+
+  res.redirect(`/urls/${newURL}`);
+});
+
+// Catchall Case
+app.get('*', (req, res) => {
+  res.status(404).send('page not found');
 });
 
 app.listen(PORT, () => {
