@@ -3,6 +3,7 @@ function generateRandomString() {
 }
 
 const express = require("express");
+const morgan = require('morgan');
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
@@ -13,6 +14,7 @@ const urlDatabase = {
 };
 
 app.set("view engine", "ejs");
+app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.get("/", (req, res) => {
