@@ -5,7 +5,7 @@ function generateRandomString() {
 const express = require('express');
 const morgan = require('morgan');
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 const bodyParser = require('body-parser');
 
 const urlDatabase = {
@@ -67,6 +67,16 @@ app.post('/urls', (req, res) => {
   urlDatabase[newURL] = req.body.longURL;
 
   res.redirect(`/urls/${newURL}`);
+});
+
+// Edit Short URL
+app.post('/urls/:shortURL/edit', (req, res) => {
+  const shortURL = req.params.shortURL;
+  const newLongURL = req.body.longURL;
+
+  urlDatabase[shortURL] = newLongURL;
+
+  res.redirect(`/urls/${shortURL}`);
 });
 
 // Delete Short URL
