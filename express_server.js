@@ -14,6 +14,7 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com'
 };
 
+// Middleware Setup
 app.set('view engine', 'ejs');
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -34,14 +35,25 @@ app.get('/u/:shortURL', (req, res) => {
 
 // All URLs Page
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const username = req.cookies["username"];
+
+  const templateVars = {
+    urls: urlDatabase,
+    username
+  };
 
   res.render('urls_index', templateVars);
 });
 
 // Create New Short URL Page
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const username = req.cookies["username"];
+
+  const templateVars = {
+    username
+  };
+
+  res.render('urls_new', templateVars);
 });
 
 // Specific Short URL Entry Page
@@ -53,21 +65,29 @@ app.get('/urls/:shortURL', (req, res) => {
     return;
   }
 
+  const username = req.cookies["username"];
   const longURL = urlDatabase[shortURL];
 
   const templateVars = {
     shortURL,
-    longURL
+    longURL,
+    username
   };
 
   res.render('urls_show', templateVars);
 });
 
+// Login with Username
 app.post('/login', (req, res) => {
   const username = req.body.username;
 
-  const returnVal = res.cookie('name', username);
-  console.log(returnVal);
+  res.cookie('username', username);
+  res.redirect(`/urls`);
+});
+
+// Logout
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
   res.redirect(`/urls`);
 });
 
