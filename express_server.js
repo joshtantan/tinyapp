@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
@@ -16,6 +17,7 @@ const urlDatabase = {
 app.set('view engine', 'ejs');
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 // Homepage (temp redirects to all URLs page)
 app.get('/', (req, res) => {
@@ -59,6 +61,14 @@ app.get('/urls/:shortURL', (req, res) => {
   };
 
   res.render('urls_show', templateVars);
+});
+
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+
+  const returnVal = res.cookie('name', username);
+  console.log(returnVal);
+  res.redirect(`/urls`);
 });
 
 // Submit new Short URL
