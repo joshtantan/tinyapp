@@ -14,6 +14,19 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com'
 };
 
+const usersDatabase = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 // Middleware Setup
 app.set('view engine', 'ejs');
 app.use(morgan('dev'));
@@ -25,6 +38,7 @@ app.get('/', (req, res) => {
   res.redirect('/urls');
 });
 
+// Registration Page
 app.get('/register', (req, res) => {
   const username = req.cookies["username"];
 
@@ -98,6 +112,23 @@ app.post('/login', (req, res) => {
 // Logout
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
+  res.redirect(`/urls`);
+});
+
+// Authenticate login credentials
+app.post('/register', (req, res) => {
+  const id = generateRandomString();
+  const username = req.body.username;
+  const password = req.body.password;
+  
+  const newUser = {
+    id,
+    username,
+    password
+  }
+
+  usersDatabase[id] = newUser;
+
   res.redirect(`/urls`);
 });
 
