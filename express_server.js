@@ -279,6 +279,19 @@ app.post('/urls', (req, res) => {
 // Edit Short URL
 app.post('/urls/:shortURL/edit', (req, res) => {
   const shortURL = req.params.shortURL;
+  const user_id = req.cookies['user_id'];
+  const user = usersDatabase[user_id];
+
+  if (!user) {
+    res.status(403).send('Not logged in');
+    return;
+  }
+
+  if (urlDatabase[shortURL].userID != user_id) {
+    res.status(403).send('Short URL access unauthorized');
+    return;
+  }
+
   const newLongURL = req.body.longURL;
   urlDatabase[shortURL].longURL = newLongURL;
   res.redirect(`/urls/${shortURL}`);
@@ -287,6 +300,18 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 // Delete Short URL
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL;
+  const user_id = req.cookies['user_id'];
+  const user = usersDatabase[user_id];
+
+  if (!user) {
+    res.status(403).send('Not logged in');
+    return;
+  }
+
+  if (urlDatabase[shortURL].userID != user_id) {
+    res.status(403).send('Short URL access unauthorized');
+    return;
+  }
 
   if (!urlDatabase[shortURL]) {
     res.status(404).send('Short URL not found');
