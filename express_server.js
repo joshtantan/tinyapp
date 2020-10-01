@@ -3,14 +3,8 @@ function generateRandomString() {
 }
 
 const findUserIdByEmail = email => {
-  console.log('usersDatabase :', usersDatabase);
-
   for (const user in usersDatabase) {
-    console.log('user :', user);
-    console.log('usersDatabase[user].email :', usersDatabase[user].email);
-
     if (usersDatabase[user].email === email) {
-      console.log('usersDatabase[user].id : ', usersDatabase[user].id);
       return usersDatabase[user].id;
     }
   }
@@ -64,6 +58,7 @@ app.get('/register', (req, res) => {
 
   if (user) {
     res.redirect('/urls');
+    return;
   }
 
   const templateVars = {
@@ -137,6 +132,7 @@ app.post('/login', (req, res) => {
   if (usersDatabase[userId].password === password) {
     res.cookie('user_id', userId);
     res.redirect('/urls');
+    return;
   }
   
   res.redirect(`/login`);
