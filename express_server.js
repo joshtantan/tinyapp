@@ -2,6 +2,20 @@ function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
 }
 
+const findUserIdByEmail = email => {
+  console.log('usersDatabase :', usersDatabase);
+
+  for (const user in usersDatabase) {
+    console.log('user :', user);
+    console.log('usersDatabase[user].email :', usersDatabase[user].email);
+
+    if (usersDatabase[user].email === email) {
+      console.log('usersDatabase[user].id : ', usersDatabase[user].id);
+      return usersDatabase[user].id;
+    }
+  }
+}
+
 const express = require('express');
 const morgan = require('morgan');
 const app = express();
@@ -24,7 +38,12 @@ const usersDatabase = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
-  }
+  },
+  "user3RandomID": {
+     id: "user3RandomID", 
+     email: "j@t.com", 
+     password: "josh"
+   }
 }
 
 // Middleware Setup
@@ -111,15 +130,24 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // Login with Username
 app.post('/login', (req, res) => {
-  const username = req.body.username;
+  const email = req.body.email;
+  console.log('email :', email);
+  const password = req.body.password;
+  console.log('password :', password);
+  const userId = findUserIdByEmail(email);
+  console.log('userId :', userId);
+
+  if (usersDatabase[userId].password === password) {
+    res.cookie('user_id', userId);
+    res.redirect('/urls');
+  }
   
-  res.cookie('username', username);
-  res.redirect(`/urls`);
+  res.redirect(`/login`);
 });
 
 // Logout
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect(`/urls`);
 });
 
