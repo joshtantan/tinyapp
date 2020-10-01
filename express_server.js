@@ -65,7 +65,7 @@ const emailRegistered = email => {
   return false;
 };
 
-const getUsersURLDatabase = userID => {
+const urlsForUser = userID => {
   const filteredURLDatabase = {};
 
   for (const url in urlDatabase) {
@@ -140,7 +140,7 @@ app.get('/urls', (req, res) => {
     return;
   }
 
-  const urls = getUsersURLDatabase(user_id);
+  const urls = urlsForUser(user_id);
 
   const templateVars = {
     urls,
