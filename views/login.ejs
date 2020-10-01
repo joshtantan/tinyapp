@@ -7,22 +7,22 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 
-    <title>Register - TinyApp</title>
+    <title>Login - TinyApp</title>
   </head>
 
   <body>
     <%- include('partials/_header') %>
 
     <main style="margin: 1em;">
-      <h3>Register a new Account</h3>
-      <form class="form-inline" method="POST" action="/register">
+      <h3>Log In to your Account:</h3>
+      <form class="form-inline" method="POST" action="/login" >
         <div class="form-group mb-2">
           <label for="email">Email</label>
           <input class="form-control" type="text" name="email" placeholder="Enter email" style="width: 300px; margin: 1em">
           
           <label for="longURL">Password</label>
           <input class="form-control" type="text" name="password" placeholder="Enter password" style="width: 300px; margin: 1em">
-          <button type="submit" class="btn btn-primary">Register</button>
+          <button type="submit" class="btn btn-primary">Login</button>
         </div>
       </form>
     </main>

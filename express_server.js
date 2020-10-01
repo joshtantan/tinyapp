@@ -24,23 +24,11 @@ const idInvalid = id => {
   return false;
 };
 
-const emailInvalid = email => {
-  if (!email) {
-    return true;
-  }
-
+const emailRegistered = email => {
   for (const user in usersDatabase) {
     if (usersDatabase[user].email === email) {
       return true;
     }
-  }
-
-  return false;
-};
-
-const passwordInvalid = password => {
-  if (!password) {
-    return true;
   }
 
   return false;
@@ -85,6 +73,23 @@ app.use(cookieParser());
 // Homepage (temp redirects to all URLs page)
 app.get('/', (req, res) => {
   res.redirect('/urls');
+});
+
+// Login Page
+app.get('/login', (req, res) => {
+  const user_id = req.cookies['user_id'];
+  const user = usersDatabase[user_id];
+
+  if (user) {
+    res.redirect('/urls');
+    return;
+  }
+
+  const templateVars = {
+    user
+  };
+
+  res.render('login', templateVars);
 });
 
 // Registration Page
@@ -167,19 +172,16 @@ app.post('/login', (req, res) => {
 
   if (!email || !password) {
     res.status(400).send('No Email and/or Password received');
-    res.redirect('/urls'); // temp redirect while login page not done
     return;
   }
 
   if (!usersDatabase[userId]) {
     res.status(400).send('Email not registered');
-    res.redirect('/urls'); // temp redirect while login page not done
     return;
   }
 
   if (usersDatabase[userId].password !== password) {
     res.status(401).send('Password incorrect');
-    res.redirect('/urls'); // temp redirect while login page not done
     return;
   }
   
@@ -203,15 +205,13 @@ app.post('/register', (req, res) => {
     id = generateRandomString();
   }
 
-  if (emailInvalid(email)) {
-    res.status(400).send('Email already registered');
-    res.redirect('/register');
+  if (!email || !password) {
+    res.status(400).send('No Email and/or Password received');
     return;
   }
 
-  if (passwordInvalid(password)) {
-    res.status(400).send('Password invalid');
-    res.redirect('/register');
+  if (emailRegistered(email)) {
+    res.status(400).send('Email already registered');
     return;
   }
   

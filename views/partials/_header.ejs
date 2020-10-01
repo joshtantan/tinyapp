@@ -17,10 +17,11 @@
         <button type="submit" class="btn btn-primary">Logout</button>
       </form>
     <% } else { %>
-      <form method="POST" action="/login">
-        <input type="text" name="email" placeholder="Email"/>
-        <input type="text" name="password" placeholder="Password"/>
-        <button type="submit" class="btn btn-primary">Login</button>
+      <form method="GET" action="/register">
+        <button type="submit" class="btn btn-primary" style="margin: 0 0.5em">Register</button>
+      </form>
+      <form method="GET" action="/login">
+        <button type="submit" class="btn btn-primary" style="margin: 0 0.5em">Login</button>
       </form>
     <% } %>
   </nav>
