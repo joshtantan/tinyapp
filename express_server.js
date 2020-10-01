@@ -122,6 +122,11 @@ app.get('/urls', (req, res) => {
   const user_id = req.cookies['user_id'];
   const user = usersDatabase[user_id];
 
+  if (!user) {
+    res.redirect('/login');
+    return;
+  }
+
   const templateVars = {
     urls: urlDatabase,
     user
@@ -133,13 +138,12 @@ app.get('/urls', (req, res) => {
 // Create New Short URL Page
 app.get('/urls/new', (req, res) => {
   const user_id = req.cookies['user_id'];
+  const user = usersDatabase[user_id];
 
-  if (!user_id) {
+  if (!user) {
     res.redirect('/login');
     return;
   }
-
-  const user = usersDatabase[user_id];
 
   const templateVars = {
     user
