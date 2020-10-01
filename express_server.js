@@ -176,9 +176,20 @@ app.get('/urls/:shortURL', (req, res) => {
     return;
   }
 
-  const longURL = urlDatabase[shortURL].longURL;
   const user_id = req.cookies['user_id'];
   const user = usersDatabase[user_id];
+
+  if (!user) {
+    res.status(403).send('Not logged in');
+    return;
+  }
+
+  if (urlDatabase[shortURL].userID != user_id) {
+    res.status(403).send('Short URL access unauthorized');
+    return;
+  }
+
+  const longURL = urlDatabase[shortURL].longURL;
 
   const templateVars = {
     shortURL,
