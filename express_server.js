@@ -3,34 +3,15 @@ function generateRandomString() {
 }
 
 const express = require('express');
+const bcrypt = require('bcrypt');
 const morgan = require('morgan');
 const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
-};
-
-const usersDatabase = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  },
-  "aJ48lW": {
-     id: "aJ48lW", 
-     email: "j@t.com", 
-     password: "josh"
-   }
-};
+const urlDatabase = {};
+const usersDatabase = {};
 
 // Helper Functions
 const findUserIdByEmail = email => {
@@ -147,6 +128,8 @@ app.get('/urls', (req, res) => {
     user
   };
 
+  console.log('usersDatabase :', usersDatabase); // TEST
+
   res.render('urls_index', templateVars);
 });
 
@@ -216,7 +199,7 @@ app.post('/login', (req, res) => {
     return;
   }
 
-  if (usersDatabase[userId].password !== password) {
+  if (!bcrypt.compareSync(password, usersDatabase[userId].password)) {
     res.status(403).send('Password incorrect');
     return;
   }
@@ -235,13 +218,13 @@ app.post('/logout', (req, res) => {
 app.post('/register', (req, res) => {
   let id = generateRandomString();
   const email = req.body.email;
-  const password = req.body.password;
+  const plaintextPassword = req.body.password;
   
   while (idInvalid(id)) {
     id = generateRandomString();
   }
 
-  if (!email || !password) {
+  if (!email || !plaintextPassword) {
     res.status(400).send('No Email and/or Password received');
     return;
   }
@@ -250,6 +233,8 @@ app.post('/register', (req, res) => {
     res.status(400).send('Email already registered');
     return;
   }
+
+  const password = bcrypt.hashSync(plaintextPassword, 10);
   
   const newUser = {
     id,
