@@ -164,7 +164,7 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-// Login with Username
+// Log in with email and password
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -176,12 +176,12 @@ app.post('/login', (req, res) => {
   }
 
   if (!usersDatabase[userId]) {
-    res.status(400).send('Email not registered');
+    res.status(403).send('Email not registered');
     return;
   }
 
   if (usersDatabase[userId].password !== password) {
-    res.status(401).send('Password incorrect');
+    res.status(403).send('Password incorrect');
     return;
   }
   
