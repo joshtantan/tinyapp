@@ -131,11 +131,8 @@ app.get('/urls/:shortURL', (req, res) => {
 // Login with Username
 app.post('/login', (req, res) => {
   const email = req.body.email;
-  console.log('email :', email);
   const password = req.body.password;
-  console.log('password :', password);
   const userId = findUserIdByEmail(email);
-  console.log('userId :', userId);
 
   if (usersDatabase[userId].password === password) {
     res.cookie('user_id', userId);
@@ -164,7 +161,6 @@ app.post('/register', (req, res) => {
   }
 
   usersDatabase[id] = newUser;
-  console.log(usersDatabase);
   res.cookie('user_id', id);
   res.redirect(`/urls`);
 });
@@ -172,10 +168,7 @@ app.post('/register', (req, res) => {
 // Submit new Short URL
 app.post('/urls', (req, res) => {
   const newURL = generateRandomString();
-  console.log('req.body.longURL :', req.body.longURL);
-
   urlDatabase[newURL] = req.body.longURL;
-  console.log(urlDatabase);
   res.redirect(`/urls/${newURL}`);
 });
 
@@ -183,7 +176,6 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:shortURL/edit', (req, res) => {
   const shortURL = req.params.shortURL;
   const newLongURL = req.body.longURL;
-  
   urlDatabase[shortURL] = newLongURL;
   res.redirect(`/urls/${shortURL}`);
 });
