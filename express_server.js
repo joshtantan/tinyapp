@@ -8,7 +8,43 @@ const findUserIdByEmail = email => {
       return usersDatabase[user].id;
     }
   }
-}
+};
+
+const idInvalid = id => {
+  if (!id) {
+    return true;
+  }
+
+  for (const user in usersDatabase) {
+    if (usersDatabase[user].id == id) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const emailInvalid = email => {
+  if (!email) {
+    return true;
+  }
+
+  for (const user in usersDatabase) {
+    if (usersDatabase[user].email === email) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const passwordInvalid = password => {
+  if (!password) {
+    return true;
+  }
+
+  return false;
+};
 
 const express = require('express');
 const morgan = require('morgan');
@@ -38,7 +74,7 @@ const usersDatabase = {
      email: "j@t.com", 
      password: "josh"
    }
-}
+};
 
 // Middleware Setup
 app.set('view engine', 'ejs');
@@ -129,36 +165,65 @@ app.post('/login', (req, res) => {
   const password = req.body.password;
   const userId = findUserIdByEmail(email);
 
-  if (usersDatabase[userId].password === password) {
-    res.cookie('user_id', userId);
-    res.redirect('/urls');
+  if (!email || !password) {
+    res.status(400).send('No Email and/or Password received');
+    res.redirect('/urls'); // temp redirect while login page not done
+    return;
+  }
+
+  if (!usersDatabase[userId]) {
+    res.status(400).send('Email not registered');
+    res.redirect('/urls'); // temp redirect while login page not done
+    return;
+  }
+
+  if (usersDatabase[userId].password !== password) {
+    res.status(401).send('Password incorrect');
+    res.redirect('/urls'); // temp redirect while login page not done
     return;
   }
   
-  res.redirect(`/login`);
+  res.cookie('user_id', userId);
+  res.redirect('/urls');
 });
 
 // Logout
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
-  res.redirect(`/urls`);
+  res.redirect('/urls');
 });
 
 // Register new user credentials
 app.post('/register', (req, res) => {
-  const id = generateRandomString();
+  let id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  
+  while (idInvalid(id)) {
+    id = generateRandomString();
+  }
+
+  if (emailInvalid(email)) {
+    res.status(400).send('Email already registered');
+    res.redirect('/register');
+    return;
+  }
+
+  if (passwordInvalid(password)) {
+    res.status(400).send('Password invalid');
+    res.redirect('/register');
+    return;
+  }
   
   const newUser = {
     id,
     email,
     password
-  }
+  };
 
   usersDatabase[id] = newUser;
   res.cookie('user_id', id);
-  res.redirect(`/urls`);
+  res.redirect('/urls');
 });
 
 // Submit new Short URL
