@@ -11,6 +11,13 @@ const PORT = 8080;
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
+const {
+  getUserByEmail,
+  idInvalid,
+  emailRegistered,
+  urlsForUser
+} = require('./helpers');
+
 const urlDatabase = {};
 const usersDatabase = {};
 
@@ -25,51 +32,6 @@ app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
-
-// Helper Functions
-const getUserByEmail = (email, database) => {
-  for (const user in database) {
-    if (database[user].email === email) {
-      return database[user];
-    }
-  }
-};
-
-const idInvalid = id => {
-  if (!id) {
-    return true;
-  }
-
-  for (const user in usersDatabase) {
-    if (usersDatabase[user].id == id) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-const emailRegistered = email => {
-  for (const user in usersDatabase) {
-    if (usersDatabase[user].email === email) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-const urlsForUser = userID => {
-  const filteredURLDatabase = {};
-
-  for (const url in urlDatabase) {
-    if (urlDatabase[url].userID == userID) {
-      filteredURLDatabase[url] = urlDatabase[url];
-    }
-  }
-
-  return filteredURLDatabase;
-};
 
 // Homepage (temp redirects to all URLs page)
 app.get('/', (req, res) => {
@@ -141,7 +103,7 @@ app.get('/urls', (req, res) => {
     return;
   }
 
-  const urls = urlsForUser(user_id);
+  const urls = urlsForUser(user_id, urlDatabase);
 
   const templateVars = {
     urls,
@@ -238,7 +200,7 @@ app.post('/register', (req, res) => {
   const email = req.body.email;
   const plaintextPassword = req.body.password;
   
-  while (idInvalid(id)) {
+  while (idInvalid(id, usersDatabase)) {
     id = generateRandomString();
   }
 
@@ -247,7 +209,7 @@ app.post('/register', (req, res) => {
     return;
   }
 
-  if (emailRegistered(email)) {
+  if (emailRegistered(email, usersDatabase)) {
     res.status(400).send('Email already registered');
     return;
   }
