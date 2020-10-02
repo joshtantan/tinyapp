@@ -2,6 +2,7 @@ function generateRandomString() {
   return Math.random().toString(36).substr(2, 6);
 }
 
+const cookieSession = require('cookie-session');
 const express = require('express');
 const bcrypt = require('bcrypt');
 const morgan = require('morgan');
@@ -12,6 +13,18 @@ const cookieParser = require('cookie-parser');
 
 const urlDatabase = {};
 const usersDatabase = {};
+
+// Middleware Setup
+app.set('view engine', 'ejs');
+app.use(morgan('dev'));
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
+
+app.set('trust proxy', 1);
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 // Helper Functions
 const findUserIdByEmail = email => {
@@ -58,12 +71,6 @@ const urlsForUser = userID => {
   return filteredURLDatabase;
 };
 
-// Middleware Setup
-app.set('view engine', 'ejs');
-app.use(morgan('dev'));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
-
 // Homepage (temp redirects to all URLs page)
 app.get('/', (req, res) => {
   res.redirect('/urls');
@@ -71,7 +78,7 @@ app.get('/', (req, res) => {
 
 // Login Page
 app.get('/login', (req, res) => {
-  const user_id = req.cookies['user_id'];
+  const user_id = req.session.user_id;
   const user = usersDatabase[user_id];
 
   if (user) {
@@ -88,7 +95,7 @@ app.get('/login', (req, res) => {
 
 // Registration Page
 app.get('/register', (req, res) => {
-  const user_id = req.cookies['user_id'];
+  const user_id = req.session.user_id;
   const user = usersDatabase[user_id];
 
   if (user) {
@@ -106,14 +113,27 @@ app.get('/register', (req, res) => {
 // Redirect to Long URL using Short URL
 app.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
+
+  if (!urlDatabase[shortURL]) {
+    res.status(404).send('Short URL not found');
+    return;
+  }
+  
   const longURL = urlDatabase[shortURL].longURL;
+  const httpPart = longURL.substr(0, 7);
+  const httpsPart = longURL.substr(0, 8);
+  
+  if (httpPart !== 'http://' && httpsPart !== 'https://') {
+    res.status(404).send('URL is invalid');
+    return;
+  }
 
   res.redirect(longURL);
 });
 
 // All URLs Page
 app.get('/urls', (req, res) => {
-  const user_id = req.cookies['user_id'];
+  const user_id = req.session.user_id;
   const user = usersDatabase[user_id];
 
   if (!user) {
@@ -128,14 +148,12 @@ app.get('/urls', (req, res) => {
     user
   };
 
-  console.log('usersDatabase :', usersDatabase); // TEST
-
   res.render('urls_index', templateVars);
 });
 
 // Create New Short URL Page
 app.get('/urls/new', (req, res) => {
-  const user_id = req.cookies['user_id'];
+  const user_id = req.session.user_id;
   const user = usersDatabase[user_id];
 
   if (!user) {
@@ -159,7 +177,7 @@ app.get('/urls/:shortURL', (req, res) => {
     return;
   }
 
-  const user_id = req.cookies['user_id'];
+  const user_id = req.session.user_id;
   const user = usersDatabase[user_id];
 
   if (!user) {
@@ -204,13 +222,13 @@ app.post('/login', (req, res) => {
     return;
   }
   
-  res.cookie('user_id', userId);
+  req.session.user_id = userId;
   res.redirect('/urls');
 });
 
 // Logout
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
+  req.session = null;
   res.redirect('/urls');
 });
 
@@ -243,7 +261,7 @@ app.post('/register', (req, res) => {
   };
 
   usersDatabase[id] = newUser;
-  res.cookie('user_id', id);
+  req.session.user_id = id;
   res.redirect('/urls');
 });
 
@@ -251,7 +269,7 @@ app.post('/register', (req, res) => {
 app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString();
   const longURL = req.body.longURL;
-  const userID = req.cookies['user_id'];
+  const userID = req.session.user_id;
 
   urlDatabase[newShortURL] = {
     longURL,
@@ -261,10 +279,10 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${newShortURL}`);
 });
 
-// Edit Short URL
+// Edit Long URL
 app.post('/urls/:shortURL/edit', (req, res) => {
   const shortURL = req.params.shortURL;
-  const user_id = req.cookies['user_id'];
+  const user_id = req.session.user_id;
   const user = usersDatabase[user_id];
 
   if (!user) {
@@ -285,7 +303,7 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 // Delete Short URL
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL;
-  const user_id = req.cookies['user_id'];
+  const user_id = req.session.user_id;
   const user = usersDatabase[user_id];
 
   if (!user) {
