@@ -27,10 +27,10 @@ app.use(cookieSession({
 }));
 
 // Helper Functions
-const findUserIdByEmail = email => {
-  for (const user in usersDatabase) {
-    if (usersDatabase[user].email === email) {
-      return usersDatabase[user].id;
+const getUserByEmail = (email, database) => {
+  for (const user in database) {
+    if (database[user].email === email) {
+      return database[user];
     }
   }
 };
@@ -205,24 +205,24 @@ app.get('/urls/:shortURL', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const userId = findUserIdByEmail(email);
+  const user = getUserByEmail(email, usersDatabase);
 
   if (!email || !password) {
     res.status(400).send('No Email and/or Password received');
     return;
   }
 
-  if (!usersDatabase[userId]) {
+  if (!user) {
     res.status(403).send('Email not registered');
     return;
   }
 
-  if (!bcrypt.compareSync(password, usersDatabase[userId].password)) {
+  if (!bcrypt.compareSync(password, user.password)) {
     res.status(403).send('Password incorrect');
     return;
   }
   
-  req.session.user_id = userId;
+  req.session.user_id = user.id;
   res.redirect('/urls');
 });
 
