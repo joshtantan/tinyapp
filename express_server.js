@@ -6,8 +6,6 @@ const cookieSession = require('cookie-session');
 const express = require('express');
 const bcrypt = require('bcrypt');
 const morgan = require('morgan');
-const app = express();
-const PORT = 8080;
 const bodyParser = require('body-parser');
 
 const {
@@ -16,6 +14,9 @@ const {
   emailRegistered,
   urlsForUser
 } = require('./helpers');
+
+const app = express();
+const PORT = 8080;
 
 const urlDatabase = {};
 const usersDatabase = {};
@@ -33,7 +34,15 @@ app.use(cookieSession({
 
 // Homepage (temp redirects to all URLs page)
 app.get('/', (req, res) => {
-  res.redirect('/urls');
+  const user_id = req.session.user_id;
+  const user = usersDatabase[user_id];
+
+  if (user) {
+    res.redirect('/urls');
+    return;
+  }
+  
+  res.redirect('/login');
 });
 
 // Login Page
@@ -79,13 +88,12 @@ app.get('/u/:shortURL', (req, res) => {
     return;
   }
   
-  const longURL = urlDatabase[shortURL].longURL;
+  let longURL = urlDatabase[shortURL].longURL;
   const httpPart = longURL.substr(0, 7);
   const httpsPart = longURL.substr(0, 8);
   
   if (httpPart !== 'http://' && httpsPart !== 'https://') {
-    res.status(404).send('URL is invalid');
-    return;
+    longURL = `https://${longURL}`;
   }
 
   res.redirect(longURL);
@@ -97,7 +105,7 @@ app.get('/urls', (req, res) => {
   const user = usersDatabase[user_id];
 
   if (!user) {
-    res.redirect('/login');
+    res.status(403).send('Not logged in');
     return;
   }
 
@@ -228,6 +236,11 @@ app.post('/register', (req, res) => {
 // Submit new Short URL
 app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString();
+
+  while (idInvalid(newShortURL, urlDatabase)) {
+    newShortURL = generateRandomString();
+  }
+
   const longURL = req.body.longURL;
   const userID = req.session.user_id;
 
